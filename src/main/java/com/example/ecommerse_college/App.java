@@ -15,24 +15,29 @@ public class App extends Application {
 
     private static Scene scene;
 
+    private static Stage primaryStage;
+
     @Override
-    public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
-        stage.setScene(scene);
-        stage.show();
+    public void start(Stage stage) {
+        primaryStage = stage;
+        primaryStage.setTitle("JavaFX Scene Switching (No FXML)");
+
+        // Start with Scene 1
+        SignInScreen scene1View = new SignInScreen(this);
+        Scene scene1 = new Scene(scene1View.getView(), 400, 300); // Create the scene
+        primaryStage.setScene(scene1);
+        primaryStage.show();
     }
 
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
-    }
-
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
+    // Method to switch scenes
+    public void switchScene(Scene newScene) {
+        if (primaryStage != null) {
+            primaryStage.setScene(newScene);
+        }
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 
 }
