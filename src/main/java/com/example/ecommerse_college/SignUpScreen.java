@@ -1,5 +1,7 @@
 package com.example.ecommerse_college;
 
+import java.sql.SQLException;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -46,8 +48,20 @@ public class SignUpScreen {
                alert2 = new Alert(AlertType.WARNING, "You must agree to proceed.", new ButtonType[0]);
                alert2.show();
             } else {
-               alert2 = new Alert(AlertType.INFORMATION, "You Signed Up", new ButtonType[0]);
+                Boolean isSignedUp = false;
+                try {
+                    isSignedUp = Database.addUser(nameField.getText(), passwordField_2.getText(), r1.isSelected());
+                } catch (SQLException e) {
+                                  alert2 = new Alert(AlertType.WARNING, e.getMessage(), new ButtonType[0]);
                alert2.show();
+                }
+                if(isSignedUp){
+                        name.setText("");
+                        passwordField_2.setText("");
+                        alert2 = new Alert(AlertType.INFORMATION, "You Signed Up", new ButtonType[0]);
+                        alert2.show();
+                }
+
             //    stage.show();
             }
          });

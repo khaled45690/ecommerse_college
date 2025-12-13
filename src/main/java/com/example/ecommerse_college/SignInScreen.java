@@ -1,5 +1,9 @@
 package com.example.ecommerse_college;
 
+import java.sql.SQLException;
+
+import com.example.ecommerse_college.Database.User;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -47,20 +51,22 @@ public class SignInScreen {
       signin.setOnAction((event) -> {
          Alert a1 = new Alert(AlertType.INFORMATION, "Welcome ", new ButtonType[0]);
          a1.setTitle("Signed In");
-         Alert a2 = new Alert(AlertType.ERROR, "Wrong email or password", new ButtonType[0]);
+         Alert a2 = new Alert(AlertType.ERROR, "Wrong username or password", new ButtonType[0]);
          a2.setTitle("Invalid");
-         if (NameField.getText().equals("jou") && passwordField.getText().equals("123")) {
-            a1.show();
-            GridPane g3 = new GridPane();
-            g3.setAlignment(Pos.CENTER);
-            g3.setVgap(10.0);
-            g3.setHgap(10.0);
-            // stage.setScene(sc3);
-            // stage.setTitle("Sign in");
-            // stage.show();
-         } else {
-            a2.show();
-         }
+         try {
+            User user =  Database.getUserByCredentials(NameField.getText(), passwordField.getText());
+            if (user != null) {
+                a1.setContentText("Welcome " + user.userName);
+                a1.show();
+            } else {
+                a2.show();
+            }
+        } catch (SQLException e) {
+            Alert a3 = new Alert(AlertType.ERROR, "Database error: " + e.getMessage(), new ButtonType[0]);
+            a3.setTitle("Database Error");
+            a3.show();
+            e.printStackTrace();
+        }
 
       });
         // // Set action to switch scenes
