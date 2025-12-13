@@ -56,7 +56,7 @@ public class SignUpScreen {
                alert2.show();
                 }
                 if(isSignedUp){
-                        name.setText("");
+                        nameField.setText("");
                         passwordField_2.setText("");
                         alert2 = new Alert(AlertType.INFORMATION, "You Signed Up", new ButtonType[0]);
                         alert2.show();
