@@ -20,7 +20,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         primaryStage = stage;
-        primaryStage.setTitle("JavaFX Scene Switching (No FXML)");
+        primaryStage.setTitle("Sign in");
 
         // Start with Scene 1
         SignInScreen scene1View = new SignInScreen(this);
@@ -34,6 +34,10 @@ public class App extends Application {
         if (primaryStage != null) {
             primaryStage.setScene(newScene);
         }
+    }
+    // Method to switch scenes
+    public void setTitle(String title) {
+            primaryStage.setTitle(title);
     }
 
     public static void main(String[] args) {
