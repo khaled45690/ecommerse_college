@@ -25,13 +25,22 @@ public class App extends Application {
         // Start with Scene 1
         SignInScreen scene1View = new SignInScreen(this);
         Scene scene1 = new Scene(scene1View.getView(), 400, 300); // Create the scene
-        primaryStage.setScene(scene1);
+        switchScene(scene1);
         primaryStage.show();
     }
 
     // Method to switch scenes
     public void switchScene(Scene newScene) {
         if (primaryStage != null) {
+            // Load the application stylesheet from resources and apply to the scene
+            try {
+                String css = getClass().getResource("/com/example/ecommerse_college/styles.css").toExternalForm();
+                newScene.getStylesheets().clear();
+                newScene.getStylesheets().add(css);
+            } catch (Exception e) {
+                // If stylesheet is missing, continue without failing
+                System.err.println("styles.css not found: " + e.getMessage());
+            }
             primaryStage.setScene(newScene);
         }
     }

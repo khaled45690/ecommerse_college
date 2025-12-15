@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -156,6 +159,93 @@ public class Database {
 		public String toString() {
 			return "User{id=" + id + ", userName='" + userName + "', isAdmin=" + isAdmin + "}";
 		}
+	}
+
+
+	/**
+	 * Product POJO for the `products` table.
+	 */
+	public static class Product {
+		public final int id;
+		public final String name;
+		public final BigDecimal price;
+
+		public Product(int id, String name, BigDecimal price) {
+			this.id = id;
+			this.name = name;
+			this.price = price;
+		}
+
+		@Override
+		public String toString() {
+			return "Product{id=" + id + ", name='" + name + "', price=" + price + "}";
+		}
+	}
+
+	/**
+	 * Add a product to the `products` table. Returns true if the insert succeeded.
+	 */
+	public static boolean addProduct(String name, BigDecimal price) throws SQLException {
+		final String nextIdSql = "SELECT COALESCE(MAX(id),0)+1 AS next_id FROM products";
+		try (Connection conn = getConnection();
+			 java.sql.PreparedStatement idPs = conn.prepareStatement(nextIdSql);
+			 java.sql.ResultSet rs = idPs.executeQuery()) {
+			int nextId = 1;
+			if (rs.next()) nextId = rs.getInt("next_id");
+
+			final String insertSql = "INSERT INTO products (id, name, price) VALUES (?, ?, ?)";
+			try (java.sql.PreparedStatement ps = conn.prepareStatement(insertSql)) {
+				ps.setInt(1, nextId);
+				ps.setString(2, name);
+				ps.setBigDecimal(3, price);
+				int affected = ps.executeUpdate();
+				return affected == 1;
+			}
+		}
+	}
+
+	/**
+	 * Delete a product by id. Returns true if a row was deleted.
+	 */
+	public static boolean deleteProduct(int id) throws SQLException {
+		final String sql = "DELETE FROM products WHERE id = ?";
+		try (Connection conn = getConnection();
+			 java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, id);
+			int affected = ps.executeUpdate();
+			return affected == 1;
+		}
+	}
+
+	/**
+	 * Update a product's name and price by id. Returns true if updated.
+	 */
+	public static boolean updateProduct(int id, String name, BigDecimal price) throws SQLException {
+		final String sql = "UPDATE products SET name = ?, price = ? WHERE id = ?";
+		try (Connection conn = getConnection();
+			 java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, name);
+			ps.setBigDecimal(2, price);
+			ps.setInt(3, id);
+			int affected = ps.executeUpdate();
+			return affected == 1;
+		}
+	}
+
+	/**
+	 * Retrieve all products from the `products` table.
+	 */
+	public static List<Product> getAllProducts() throws SQLException {
+		final String sql = "SELECT id, name, price FROM products ORDER BY id";
+		List<Product> out = new ArrayList<>();
+		try (Connection conn = getConnection();
+			 java.sql.PreparedStatement ps = conn.prepareStatement(sql);
+			 ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				out.add(new Product(rs.getInt("id"), rs.getString("name"), rs.getBigDecimal("price")));
+			}
+		}
+		return out;
 	}
 
 

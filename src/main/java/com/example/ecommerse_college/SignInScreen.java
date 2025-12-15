@@ -58,6 +58,10 @@ public class SignInScreen {
             if (user != null) {
                 a1.setContentText("Welcome " + user.userName);
                 a1.show();
+                // Switch to main screen after successful login
+                MainScreen main = new MainScreen(mainApp, user);
+                Scene mainScene = new Scene(main.getView(), 800, 600);
+                mainApp.switchScene(mainScene);
             } else {
                 a2.show();
             }

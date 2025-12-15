@@ -1,0 +1,62 @@
+/* Main app stylesheet */
+
+.root {
+  -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Top bar */
+.top-bar {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center-left;
+}
+
+.title {
+  -fx-font-size: 20px;
+  -fx-font-weight: bold;
+}
+
+/* Product card */
+.product-card {
+  -fx-border-color: #cccccc;
+  -fx-border-radius: 4px;
+  -fx-background-radius: 4px;
+  -fx-background-color: #f9f9f9;
+  -fx-padding: 8px;
+  -fx-spacing: 6px;
+}
+
+.product-card:hover {
+  -fx-cursor: hand;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 4, 0, 0, 2);
+}
+
+.product-card.selected {
+  -fx-background-color: #d0f0d6; /* light green for selected */
+  -fx-border-color: #66bb6a;
+}
+
+.product-name {
+  -fx-font-weight: bold;
+}
+
+.product-price {
+  -fx-text-fill: #333333;
+}
+
+.edit-button {
+  -fx-font-size: 11px;
+}
+
+.add-button {
+  -fx-font-size: 12px;
+}
+
+.no-products {
+  -fx-padding: 20px;
+  -fx-font-size: 14px;
+}
+
+.error-label {
+  -fx-text-fill: red;
+}
