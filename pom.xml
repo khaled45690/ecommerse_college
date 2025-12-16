@@ -36,8 +36,6 @@
             <version>5.2.2</version>
         </dependency>
     </dependencies>
-        ...existing code...
-
     <build>
         <plugins>
             <plugin>

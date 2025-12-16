@@ -6,6 +6,7 @@ import java.util.List;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -56,14 +57,44 @@ public class CheckoutScreen {
         center.getChildren().add(totalLabel);
 
         root.setCenter(center);
-
         Button back = new Button("Back");
         back.setOnAction(e -> {
             MainScreen main = new MainScreen(mainApp, currentUser);
             javafx.scene.Scene mainScene = new javafx.scene.Scene(main.getView(), 800, 600);
             mainApp.switchScene(mainScene);
         });
-        HBox bottom = new HBox(back);
+
+        Button save = new Button("Save Checkout");
+        save.setOnAction(e -> {
+            try {
+                Database.Checkout saved = Database.saveCheckout(products);
+                if (saved != null) {
+                    Alert a = new Alert(Alert.AlertType.INFORMATION);
+                    a.setTitle("Saved");
+                    a.setHeaderText("Checkout saved");
+                    a.setContentText("Saved at: " + (saved.date != null ? saved.date.toString() : "(no timestamp)"));
+                    a.showAndWait();
+                    // return to main
+                    MainScreen main = new MainScreen(mainApp, currentUser);
+                    javafx.scene.Scene mainScene = new javafx.scene.Scene(main.getView(), 800, 600);
+                    mainApp.switchScene(mainScene);
+                } else {
+                    Alert a = new Alert(Alert.AlertType.ERROR);
+                    a.setTitle("Error");
+                    a.setHeaderText("Save failed");
+                    a.setContentText("Failed to save checkout.");
+                    a.showAndWait();
+                }
+            } catch (Exception ex) {
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setTitle("Error");
+                a.setHeaderText("Save failed");
+                a.setContentText(ex.getMessage());
+                a.showAndWait();
+            }
+        });
+
+        HBox bottom = new HBox(8, back, save);
         bottom.setPadding(new Insets(10));
         bottom.setAlignment(Pos.CENTER_RIGHT);
         root.setBottom(bottom);

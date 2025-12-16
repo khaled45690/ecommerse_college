@@ -18,13 +18,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * MainScreen: shows products in a simple card layout. If logged-in user is admin,
@@ -52,6 +50,7 @@ public class MainScreen {
         mainApp.setTitle("Products");
         HBox top = new HBox();
         top.setPadding(new Insets(10));
+        top.setSpacing(10);
         top.setAlignment(Pos.CENTER_LEFT);
         Label title = new Label("Products");
         title.getStyleClass().add("title");
@@ -73,6 +72,11 @@ public class MainScreen {
         }
 
         top.getChildren().add(checkoutBtn);
+
+        // Checkout history button (always available)
+        Button historyBtn = new Button("Checkout History");
+        historyBtn.setOnAction(e -> onCheckoutHistory());
+        top.getChildren().add(historyBtn);
 
         root.setTop(top);
 
@@ -176,11 +180,6 @@ public class MainScreen {
         // Later: open product details or select for cart
     }
 
-    // Placeholder: called when Edit pressed for admin
-    private void onEditProduct(Product p) {
-        System.out.println("Edit product: " + p);
-        // Later: open edit dialog/screen
-    }
 
     // Placeholder: called when Add pressed for admin
     private void onAddProduct() {
@@ -200,6 +199,19 @@ public class MainScreen {
         CheckoutScreen cs = new CheckoutScreen(mainApp, currentUser, selected);
         javafx.scene.Scene scene = new javafx.scene.Scene(cs.getView(), 800, 600);
         mainApp.switchScene(scene);
+    }
+
+    // Navigate to checkout history screen
+    private void onCheckoutHistory() {
+        try {
+            CheckoutHistoryScreen ch = new CheckoutHistoryScreen(mainApp, currentUser);
+            javafx.scene.Scene s = new javafx.scene.Scene(ch.getView(), 800, 600);
+            mainApp.switchScene(s);
+        } catch (Exception e) {
+            Label err = new Label("Failed to open checkout history: " + e.getMessage());
+            err.setPadding(new Insets(10));
+            root.setCenter(err);
+        }
     }
 
     public BorderPane getView() {

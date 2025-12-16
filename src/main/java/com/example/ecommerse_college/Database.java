@@ -4,8 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -259,5 +260,102 @@ public class Database {
 		}
 		return null;
 	}
+// --- Checkouts support ---
+
+    /**
+     * Checkout POJO for the `checkouts` table.
+     */
+    public static class Checkout {
+        public final int id;
+        public final String productsJson;
+        public final LocalDateTime date;
+
+        public Checkout(int id, String productsJson, LocalDateTime date) {
+            this.id = id;
+            this.productsJson = productsJson;
+            this.date = date;
+        }
+
+        @Override
+        public String toString() {
+            return "Checkout{id=" + id + ", date=" + date + ", products=" + productsJson + "}";
+        }
+    }
+
+    /**
+     * Save a checkout row with the provided products list (serialized as JSON) and
+     * use the database current timestamp for the `date` column. Returns the saved
+     * Checkout with the DB timestamp, or null on failure.
+     */
+    public static Checkout saveCheckout(List<Product> products) throws SQLException {
+        // Build a simple JSON array string: [{"id":1,"name":"...","price":"19.99"},...]
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        boolean first = true;
+        for (Product p : products) {
+            if (!first) sb.append(',');
+            first = false;
+            // Simple escaping for quotes in name
+            String escapedName = p.name.replace("\\", "\\\\").replace("\"", "\\\"");
+            sb.append('{')
+              .append("\"id\":").append(p.id).append(',')
+              .append("\"name\":\"").append(escapedName).append("\",")
+              .append("\"price\":\"").append(p.price.toPlainString()).append("\"")
+              .append('}');
+        }
+        sb.append(']');
+        String productsJson = sb.toString();
+
+        final String nextIdSql = "SELECT COALESCE(MAX(id),0)+1 AS next_id FROM checkouts";
+        try (Connection conn = getConnection();
+             java.sql.PreparedStatement idPs = conn.prepareStatement(nextIdSql);
+             ResultSet rs = idPs.executeQuery()) {
+            int nextId = 1;
+            if (rs.next()) nextId = rs.getInt("next_id");
+
+            final String insertSql = "INSERT INTO checkouts (id, products, date) VALUES (?, ?, NOW())";
+            try (java.sql.PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, nextId);
+                ps.setString(2, productsJson);
+                int affected = ps.executeUpdate();
+                if (affected != 1) return null;
+            }
+
+            // Retrieve the DB timestamp that was stored
+            final String sel = "SELECT date FROM checkouts WHERE id = ? LIMIT 1";
+            try (java.sql.PreparedStatement ps2 = conn.prepareStatement(sel)) {
+                ps2.setInt(1, nextId);
+                try (ResultSet rs2 = ps2.executeQuery()) {
+                    if (rs2.next()) {
+                        Timestamp t = rs2.getTimestamp("date");
+                        LocalDateTime dt = t != null ? t.toLocalDateTime() : null;
+                        return new Checkout(nextId, productsJson, dt);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve all checkouts.
+     */
+    public static List<Checkout> getAllCheckouts() throws SQLException {
+        final String sql = "SELECT id, products, date FROM checkouts ORDER BY id";
+        List<Checkout> out = new ArrayList<>();
+        try (Connection conn = getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String productsJson = rs.getString("products");
+                Timestamp t = rs.getTimestamp("date");
+                LocalDateTime dt = t != null ? t.toLocalDateTime() : null;
+                out.add(new Checkout(id, productsJson, dt));
+            }
+        }
+        return out;
+    }
+
 }
 
