@@ -63,10 +63,7 @@ public class Database {
 				HOST, PORT, DATABASE);
 	}
 
-	/**
-	 * Get a new JDBC connection to the configured database.
-	 * Caller is responsible for closing the returned Connection.
-	 */
+
 	public static Connection getConnection() throws SQLException {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -76,9 +73,6 @@ public class Database {
 		return DriverManager.getConnection(JDBC_URL, USER, PASSWORD);
 	}
 
-	/**
-	 * Close JDBC resources quietly.
-	 */
 	public static void closeQuietly(AutoCloseable ac) {
 		if (ac == null) return;
 		try {
@@ -87,13 +81,7 @@ public class Database {
 		}
 	}
 
-	/**
-	 * Insert a new user into the `user` table.
-	 * Returns true if the row was inserted.
-	 *
-	 * Note: Passwords are stored in plain text here only for simplicity to match your
-	 * existing schema. For real apps, hash passwords (e.g. bcrypt) before storing.
-	 */
+
 	public static boolean addUser(String userName, String password, boolean isAdmin) throws SQLException {
 		// Compute next id: if table empty -> 1, else max(id)+1
 		final String nextIdSql = "SELECT COALESCE(MAX(id),0)+1 AS next_id FROM user";
@@ -288,7 +276,6 @@ public class Database {
      * Checkout with the DB timestamp, or null on failure.
      */
     public static Checkout saveCheckout(List<Product> products) throws SQLException {
-        // Build a simple JSON array string: [{"id":1,"name":"...","price":"19.99"},...]
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         boolean first = true;
